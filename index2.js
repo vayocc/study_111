@@ -4,6 +4,8 @@ const { chromium } = require('playwright');
 const USER_DATA_DIR = "/Users/vayo/chrome-profile-pc";// 请根据需要修改路径
 const COURSE_URL_SUBSTR = 'lms.hactcm.edu.cn/venus/study/activity/video/study.do';
 const START_URL = 'https://cjmanager.hactcm.edu.cn/';
+// 从头播放(每个视频从最开始的时候播放)
+const BEGIN_0_START = true;
 
 (async () => {
     // ------------------ 启动浏览器（使用你给的配置） ------------------
@@ -116,10 +118,10 @@ async function handleCoursePage(page, context) {
             const current = lis[currentIndex];
             console.log(`[handler] 当前节：index=${currentIndex}, id=${current.id}, title=${current.title}`);
 
-            // 1) 等待并尝试让 video 播放（不会把 currentTime 设0）
+            // 1) 等待并尝试让 video 播放
             const started = await waitForVideoAndPlay(page);
             if (!started) {
-                await page.waitForLoadState('load', { timeout: 60000 });
+                await page.reload({ waitUntil: 'domcontentloaded' });
                 // 无法启动播放（或页面导航），直接回到外层循环，让外层重新检测页面结构
                 console.log('[handler] 无法启动播放或页面已导航，外层会重试/接管新的页面');
                 continue;
@@ -128,7 +130,7 @@ async function handleCoursePage(page, context) {
             // 2) 等待播放结束（或接近结束）；若检测到页面导航则返回 false 并由外层接管
             const finished = await waitForVideoEndSafe(page);
             if (!finished) {
-                await page.waitForLoadState('load', { timeout: 60000 });
+                await page.reload({ waitUntil: 'domcontentloaded' });
                 console.log('[handler] 播放等待被打断（页面导航/刷新），外层会继续处理新页面。');
                 continue;
             }
@@ -201,7 +203,14 @@ async function waitForVideoAndPlay(page, options = {}) {
             await page.evaluate(() => {
                 const v = document.querySelector('video');
                 if (!v) return;
-                try { v.muted = true; v.volume = 0; } catch (e) {}
+                try {
+                    v.muted = true;
+                    // 如果需要从头播放
+                    if (BEGIN_0_START) {
+                        v.currentTime = 0;
+                    }
+                    v.volume = 0;
+                } catch (e) {}
                 try { if (v.paused) v.play().catch(() => {}); } catch (e) {}
             });
 
