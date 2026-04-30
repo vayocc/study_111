@@ -23,11 +23,17 @@ const handledPages = new WeakSet(); // 防止重复接管
             "--start-maximized",
         ],
         userAgent:
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
         locale: "zh-CN",
         timezoneId: "Asia/Shanghai",
         extraHTTPHeaders: { "Accept-Language": "zh-CN,zh;q=0.9" },
         viewport: null,
+    });
+
+    await context.addInitScript(() => {
+        Object.defineProperty(navigator, "webdriver", { get: () => false });
+        Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4] });
+        Object.defineProperty(navigator, "languages", { get: () => ["zh-CN", "zh"] });
     });
 
     const firstPage =

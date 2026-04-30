@@ -22,11 +22,18 @@ const BEGIN_0_START = true;
             "--disable-features=IsolateOrigins,site-per-process",
             "--start-maximized"
         ],
-        userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
         locale: "zh-CN",
         timezoneId: "Asia/Shanghai",
         extraHTTPHeaders: { "Accept-Language": "zh-CN,zh;q=0.9" },
         viewport: null
+    });
+
+    // 伪装常见自动化特征，尽量让页面看到更接近真实浏览器的环境
+    await context.addInitScript(() => {
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4] });
+        Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh'] });
     });
 
     // 取得或创建一个页面，并打开起始页（方便你开始手动登录）
