@@ -30,11 +30,12 @@ const BEGIN_0_START = true;
     });
 
     // 伪装常见自动化特征，尽量让页面看到更接近真实浏览器的环境
-    await context.addInitScript(() => {
-        Object.defineProperty(navigator, 'webdriver', { get: () => false });
-        Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4] });
-        Object.defineProperty(navigator, 'languages', { get: () => ['zh-CN', 'zh'] });
-    });
+    // 不知道为啥这个页面加这个启动会被检测到机器人https://www.browserscan.net/zh/bot-detection
+    /*await context.addInitScript(() => {
+        Object.defineProperty(navigator, "webdriver", { get: () => false });
+        Object.defineProperty(navigator, "plugins", { get: () => [1, 2, 3, 4] });
+        Object.defineProperty(navigator, "languages", { get: () => ["zh-CN", "zh"] });
+    });*/
 
     // 取得或创建一个页面，并打开起始页（方便你开始手动登录）
     const pages = context.pages();
